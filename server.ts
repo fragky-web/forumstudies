@@ -9,7 +9,7 @@ dotenv.config();
 
 const PORT = 3000;
 const RECIPIENT_EMAIL = process.env.ENROLLMENT_RECIPIENT_EMAIL || 'fragky@gmail.com';
-const DATA_DIR = path.resolve(process.cwd(), 'data');
+const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'data') : path.resolve(process.cwd(), 'data');
 const ENROLLMENTS_FILE = path.join(DATA_DIR, 'enrollments.json');
 
 interface EnrollmentRecord {
