@@ -39,6 +39,7 @@ import hardwareImg from './assets/images/course_hardware_systems_1790491334354.j
 import cyberImg from './assets/images/course_cyber_security_1790491347163.jpg';
 import ecdlImg from './assets/images/course_ecdl_certification_1790491357466.jpg';
 import aeppImg from './assets/images/course_aepp_algorithm_1790492210520.jpg';
+import { StudentProjectsSection } from './components/StudentProjectsSection';
 
 const RECIPIENT_EMAIL = 'fragky@gmail.com';
 
@@ -677,8 +678,9 @@ function Nav({ onOpenEnroll }: { onOpenEnroll: (defaultTrack?: string) => void }
 
   const navLinks = [
     { label: 'Curriculum', href: '#curriculum' },
-    { label: 'ECDL / ΑΣΕΠ', href: '#ecdl' },
     { label: 'ΑΕΠΠ Γ\' Λυκείου', href: '#aepp' },
+    { label: 'ECDL / ΑΣΕΠ', href: '#ecdl' },
+    { label: 'Εργασίες Μαθητών', href: '#projects' },
     { label: 'Laboratory', href: '#about' },
     { label: 'Admissions', href: '#admissions' },
   ];
@@ -1531,6 +1533,7 @@ function Footer({ onOpenEnroll }: { onOpenEnroll: (defaultTrack?: string) => voi
                 { label: 'Εργαστήρια', href: '#about' },
                 { label: 'Ύλη ΑΕΠΠ', href: '#aepp' },
                 { label: 'Τεστ Προσομοίωσης ECDL', href: '#ecdl-simulator' },
+                { label: 'Εργασίες Μαθητών', href: '#projects' },
                 { label: 'Αίτηση Εγγραφής', href: '#admissions' },
               ].map(item => (
                 <li key={item.label}>
@@ -1755,6 +1758,9 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {/* Student Projects & Showcase Section */}
+      <StudentProjectsSection />
 
       {/* About / Laboratory Section */}
       <section id="about" className="py-28 border-b border-white/10">

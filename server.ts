@@ -167,6 +167,108 @@ async function startServer() {
     }
   });
 
+  // Endpoint for student assignment submissions
+  app.post('/api/submit-project', async (req, res) => {
+    try {
+      const { studentName, email, track, projectTitle, description, codeLink } = req.body || {};
+
+      if (!studentName || !email || !projectTitle) {
+        res.status(400).json({
+          ok: false,
+          error: 'Παρακαλώ συμπληρώστε τα υποχρεωτικά πεδία (Ονοματεπώνυμο, Email, Τίτλος Εργασίας).',
+        });
+        return;
+      }
+
+      const submissionId = `PRJ-${Date.now().toString(36).toUpperCase()}`;
+      const createdAt = new Date().toISOString();
+      const subject = `[Forum Computer Studies] Υποβολή Εργασίας Μαθητή (${submissionId}) — ${projectTitle}`;
+      const textBody = [
+        `Νέα Υποβολή Εργασίας Μαθητή στο Forum Computer Studies`,
+        `======================================================`,
+        `Κωδικός Εργασίας: ${submissionId}`,
+        `Ημερομηνία: ${new Date(createdAt).toLocaleString('el-GR')}`,
+        `Τμήμα / Μάθημα: ${track || 'ΑΕΠΠ / ECDL'}`,
+        `Ονοματεπώνυμο Μαθητή: ${studentName}`,
+        `Email: ${email}`,
+        `Τίτλος Εργασίας: ${projectTitle}`,
+        `Περιγραφή / Σχόλια: ${description || '—'}`,
+        `Σύνδεσμος Κώδικα / Αρχείου: ${codeLink || '—'}`,
+        `======================================================`,
+        `Παραλήπτης: ${RECIPIENT_EMAIL}`,
+      ].join('\n');
+
+      let deliveryMethod = 'recorded';
+
+      // Relay via FormSubmit AJAX endpoint to fragky@gmail.com
+      try {
+        const appOrigin = process.env.APP_URL || 'https://forum-computer-studies.run.app';
+        await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(RECIPIENT_EMAIL)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Origin': appOrigin,
+            'Referer': appOrigin,
+          },
+          body: JSON.stringify({
+            _subject: subject,
+            _replyto: email,
+            Κωδικός_Εργασίας: submissionId,
+            Μαθητής: studentName,
+            Email: email,
+            Τμήμα: track,
+            Τίτλος_Εργασίας: projectTitle,
+            Περιγραφή: description,
+            Σύνδεσμος: codeLink,
+          }),
+        });
+        deliveryMethod = 'formsubmit-relay';
+      } catch (err) {
+        console.warn('Project submission email relay notice:', err);
+      }
+
+      const projectsFile = path.join(DATA_DIR, 'project_submissions.json');
+      try {
+        if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+        let currentSubmissions = [];
+        if (fs.existsSync(projectsFile)) {
+          currentSubmissions = JSON.parse(fs.readFileSync(projectsFile, 'utf-8'));
+        }
+        currentSubmissions.unshift({
+          id: submissionId,
+          createdAt,
+          studentName,
+          email,
+          track,
+          projectTitle,
+          description,
+          codeLink,
+          recipientEmail: RECIPIENT_EMAIL,
+        });
+        fs.writeFileSync(projectsFile, JSON.stringify(currentSubmissions, null, 2), 'utf-8');
+      } catch (fileErr) {
+        console.error('Failed to write project submission to file:', fileErr);
+      }
+
+      const mailtoUrl = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(textBody)}`;
+
+      res.json({
+        ok: true,
+        submissionId,
+        recipientEmail: RECIPIENT_EMAIL,
+        deliveryMethod,
+        mailtoUrl,
+      });
+    } catch (err) {
+      console.error('Error submitting project:', err);
+      res.status(500).json({
+        ok: false,
+        error: 'Παρουσιάστηκε σφάλμα κατά την υποβολή της εργασίας.',
+      });
+    }
+  });
+
   app.get('/api/enrollments', (_req, res) => {
     try {
       if (!fs.existsSync(ENROLLMENTS_FILE)) {
