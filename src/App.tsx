@@ -649,19 +649,29 @@ function Logo({ className = "" }: { className?: string }) {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <a href="#home" className={`flex items-center gap-3 group cursor-pointer ${className}`}>
+    <a href="#home" className={`flex items-center gap-3 group cursor-pointer ${className}`} title="Forum Computer Studies">
       {!imgError ? (
-        <img 
-          src="/logo.svg" 
-          alt="Forum Computer Studies Logo" 
-          className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-200"
-          referrerPolicy="no-referrer"
-          onError={() => setImgError(true)}
-        />
-      ) : null}
-      <span className="text-lg font-bold tracking-tight text-white font-display whitespace-nowrap">
-        FORUM <span className="text-indigo-500 font-normal">COMPUTER STUDIES</span>
-      </span>
+        <div className="relative overflow-hidden rounded-lg bg-white/95 px-2.5 py-1.5 shadow-sm ring-1 ring-slate-200/50 group-hover:bg-white group-hover:ring-rose-500/30 transition-all duration-200">
+          <img 
+            src="/Forum_Desktop.png" 
+            alt="Forum Computer Studies" 
+            className="h-10 sm:h-11 md:h-12 w-auto max-w-[220px] sm:max-w-[260px] md:max-w-[300px] object-contain group-hover:scale-[1.02] transition-transform duration-200"
+            onError={() => setImgError(true)}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center gap-2.5">
+          <img 
+            src="/Forum_Desktop.png" 
+            alt="Emblem" 
+            className="h-8 w-auto object-contain"
+            onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
+          />
+          <span className="text-lg font-bold tracking-tight text-white font-display whitespace-nowrap">
+            FORUM <span className="text-rose-500 font-normal">COMPUTER STUDIES</span>
+          </span>
+        </div>
+      )}
     </a>
   );
 }
